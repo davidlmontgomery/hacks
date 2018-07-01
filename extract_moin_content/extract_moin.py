@@ -100,23 +100,24 @@ def process_page_revisions(page_base, page_filename, dst_dirs):
 
         # Construct filename with path
         src_file = os.path.join(src_revisions, rname)
-        three_digits = rname[-3:]  # Copy will fail if more than 1000 revisions
-        dst_file = '{0}.{1}.moin'.format(page_filename, three_digits)
+        four_digits = rname[-4:]  # Copy will fail if more than 10,000 revisions
+        dst_file = '{0}.{1}.moin'.format(page_filename, four_digits)
         dst_file = os.path.join(dst_dirs['revisions'], dst_file)
 
         # Copy, failing on overwrite, preserving timestamp
         subprocess.check_call(['cp', '-n', '-p', src_file, dst_file])
+        subprocess.check_call(['diff', src_file, dst_file])
 
     # copy max_index revision file to text directory
     src_file = os.path.join(src_revisions, '{:08d}'.format(max_index))
     dst_file = '{0}.moin'.format(page_filename)
     dst_file = os.path.join(dst_dirs['text'], dst_file)
     subprocess.check_call(['cp', '-n', '-p', src_file, dst_file])
+    subprocess.check_call(['diff', src_file, dst_file])
 
 
 def process_attachments(page_base, dst_page_dirname, dst_dirs):
     """Copy any attachments over."""
-    # If we have a non-empty attachments directory ...
     src_attachments = os.path.join(page_base, 'attachments')
     if os.path.isdir(src_attachments):
         attachments = os.listdir(src_attachments)
@@ -124,9 +125,9 @@ def process_attachments(page_base, dst_page_dirname, dst_dirs):
             dst_attachments = os.path.join(dst_dirs['attachments'], dst_page_dirname)
             create_directory(dst_attachments)
         for attachment in attachments:
-            subprocess.check_output(
-                ['cp', '-n', '-p', os.path.join(src_attachments, attachment), dst_attachments],
-                stderr=subprocess.STDOUT)
+            src_file = os.path.join(src_attachments, attachment)
+            subprocess.check_call(['cp', '-n', '-p', src_file, dst_attachments])
+            subprocess.check_call(['diff', src_file, dst_attachments])
 
 
 def main():
