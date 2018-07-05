@@ -65,10 +65,20 @@ def create_subdirectories(dst_base):
 
 
 def normalized_page_name(name):
-    """Return more readable filename without moinmoin parens escapes."""
+    """
+    Return more readable filename without moinmoin parens escapes.
+
+    Should do this with more general approached. I just hacked in the
+    ones I needed for my pages.
+
+    """
     name = name.replace('(26)', '-and-')  # Using '-and-' rather than '&'
     name = name.replace('(2f)', '--')     # Using '--' rather than '/'
     name = name.replace('(2d)', '-')
+    name = name.replace('(20)', ' ')
+    name = name.replace('(3a20)', ' - ')  # Using ' - ' rather than ': '
+    name = name.replace('(2c20)', ' ')    # Ignoring commas
+    name = name.replace('(3f)', ' ')      # Ignoring question marks
     if '(' in name or ')' in name:
         print 'Unexpected moinmoin page name paren escape code in "{}".'.format(name)
         sys.exit(-1)
